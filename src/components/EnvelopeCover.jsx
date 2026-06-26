@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { t } from "../i18n/translations";
 
-const INTRO_VIDEO = "/intro-video.mp4";
+const INTRO_VIDEO = `${import.meta.env.BASE_URL}intro-video.mp4`;
 
 export default function EnvelopeCover({ language, onOpen, onUserInteract }) {
   const videoRef = useRef(null);

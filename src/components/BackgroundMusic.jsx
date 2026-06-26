@@ -54,7 +54,7 @@ const BackgroundMusic = forwardRef(function BackgroundMusic({ language, showCont
 
   return (
     <>
-      <audio ref={audioRef} src="/music.mp3" loop preload="auto" />
+      <audio ref={audioRef} src={`${import.meta.env.BASE_URL}music.mp3`} loop preload="auto" />
 
       {showControls && (
         <button
