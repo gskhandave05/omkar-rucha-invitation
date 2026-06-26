@@ -14,7 +14,7 @@ export const invitationData = {
     fullNameEn: "Rucha Durve",
     parents: "श्रीमती शोभा व कै. अजित वसंत दुर्वे",
     parentsLineMr: "श्रीमती शोभा व कै. अजित वसंत दुर्वे यांची कन्या",
-    parentsLineEn: "Daughter of Mrs. Shobha & Late Mr. Ajit Vasant Durve",
+    parentsLineEn: "Daughter of Smt. Shobha & Late Mr. Ajit Vasant Durve",
   },
 
   event: {
