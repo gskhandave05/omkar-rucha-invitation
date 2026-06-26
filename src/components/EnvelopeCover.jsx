@@ -14,14 +14,23 @@ export default function EnvelopeCover({ language, onOpen, onUserInteract }) {
     const video = videoRef.current;
     if (!video) return;
 
-    const showFirstFrame = () => {
+    const markReady = () => {
       video.currentTime = 0;
       video.pause();
       setVideoReady(true);
     };
 
-    video.addEventListener("loadeddata", showFirstFrame);
-    return () => video.removeEventListener("loadeddata", showFirstFrame);
+    video.addEventListener("loadeddata", markReady);
+    video.addEventListener("canplay", markReady);
+
+    if (video.readyState >= 2) {
+      markReady();
+    }
+
+    return () => {
+      video.removeEventListener("loadeddata", markReady);
+      video.removeEventListener("canplay", markReady);
+    };
   }, []);
 
   const finishOpen = () => {
@@ -52,15 +61,30 @@ export default function EnvelopeCover({ language, onOpen, onUserInteract }) {
     }
   };
 
-  const handleTap = () => {
-    if (phase === "done") return;
-
-    if (phase === "playing") return;
+  const handleTap = async () => {
+    if (phase === "done" || phase === "playing") return;
 
     onUserInteract?.();
 
     if (videoFailed) {
       finishOpen();
+      return;
+    }
+
+    const video = videoRef.current;
+    if (!video) {
+      finishOpen();
+      return;
+    }
+
+    if (!videoReady) {
+      try {
+        video.load();
+        await video.play();
+        setPhase("playing");
+      } catch {
+        finishOpen();
+      }
       return;
     }
 
@@ -71,10 +95,12 @@ export default function EnvelopeCover({ language, onOpen, onUserInteract }) {
     finishOpen();
   };
 
+  const showHint = phase === "idle";
+
   return (
     <>
       <div
-        className="video-intro"
+        className="video-intro envelope-paper"
         onClick={handleTap}
         role="button"
         tabIndex={0}
@@ -90,28 +116,35 @@ export default function EnvelopeCover({ language, onOpen, onUserInteract }) {
           {!videoFailed && (
             <video
               ref={videoRef}
+              className={videoReady ? "is-ready" : ""}
               src={INTRO_VIDEO}
               playsInline
-              preload="auto"
+              muted
+              preload="metadata"
               onEnded={handleVideoEnd}
               onError={() => setVideoFailed(true)}
             />
           )}
         </div>
 
-        {phase === "idle" && videoReady && (
+        {showHint && (
           <div className="video-intro__overlay">
+            {!videoReady && !videoFailed && (
+              <div className="video-intro__loading" aria-hidden="true">
+                <span className="video-intro__spinner" />
+              </div>
+            )}
             <p className={`video-intro__hint video-intro__hint--${language}`}>
-              {t(language, "tapToReveal")}
+              {videoFailed ? t(language, "openInvitation") : t(language, "tapToReveal")}
             </p>
           </div>
         )}
 
-        {videoFailed && phase === "idle" && (
+        {phase === "playing" && !videoReady && (
           <div className="video-intro__overlay">
-            <p className={`video-intro__hint video-intro__hint--${language}`}>
-              {t(language, "openInvitation")}
-            </p>
+            <div className="video-intro__loading" aria-hidden="true">
+              <span className="video-intro__spinner" />
+            </div>
           </div>
         )}
       </div>
