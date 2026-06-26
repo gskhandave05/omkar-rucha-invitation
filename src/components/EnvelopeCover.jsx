@@ -74,7 +74,7 @@ export default function EnvelopeCover({ language, onOpen, onUserInteract }) {
   return (
     <>
       <div
-        className="video-intro"
+        className="video-intro envelope-paper"
         onClick={handleTap}
         role="button"
         tabIndex={0}
@@ -90,6 +90,7 @@ export default function EnvelopeCover({ language, onOpen, onUserInteract }) {
           {!videoFailed && (
             <video
               ref={videoRef}
+              className={videoReady ? "is-ready" : ""}
               src={INTRO_VIDEO}
               playsInline
               preload="auto"
@@ -99,18 +100,15 @@ export default function EnvelopeCover({ language, onOpen, onUserInteract }) {
           )}
         </div>
 
-        {phase === "idle" && videoReady && (
+        {phase === "idle" && (
           <div className="video-intro__overlay">
+            {!videoReady && !videoFailed && (
+              <div className="video-intro__loading" aria-hidden="true">
+                <span className="video-intro__spinner" />
+              </div>
+            )}
             <p className={`video-intro__hint video-intro__hint--${language}`}>
-              {t(language, "tapToReveal")}
-            </p>
-          </div>
-        )}
-
-        {videoFailed && phase === "idle" && (
-          <div className="video-intro__overlay">
-            <p className={`video-intro__hint video-intro__hint--${language}`}>
-              {t(language, "openInvitation")}
+              {videoFailed ? t(language, "openInvitation") : t(language, "tapToReveal")}
             </p>
           </div>
         )}
