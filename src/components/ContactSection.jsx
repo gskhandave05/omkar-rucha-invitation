@@ -1,30 +1,52 @@
+import { useRef } from "react";
+import { useInView } from "framer-motion";
 import { invitationData } from "../data/invitationData";
+import { t } from "../i18n/translations";
 
-export default function ContactSection() {
+export default function ContactSection({ language }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const { groom, bride } = invitationData;
+  const isMr = language === "mr";
+
   return (
-    <section className="py-20 text-center">
+    <section ref={ref} className="footer-section snap-page">
+      <p className={`footer-msg reveal-item ${inView ? "visible" : ""}`}>
+        {t(language, "footerMsg")}
+      </p>
 
-      <h2 className="text-4xl text-amber-700 mb-10">
-        Contact
-      </h2>
+      <span className={`footer-regards reveal-item reveal-d1 ${inView ? "visible" : ""}`}>
+        {t(language, "withLove")}
+      </span>
 
-      {invitationData.contacts.map((person) => (
-        <div
-          key={person.phone}
-          className="mb-6"
-        >
-          <h3 className="text-xl">
-            {person.name}
-          </h3>
+      <div className={`footer-names reveal-item reveal-d2 ${inView ? "visible" : ""}`}>
+        <span className={`footer-name shimmer ${isMr ? "footer-name--mr" : ""}`}>
+          {isMr ? groom.nameMr.replace("चि. ", "") : groom.nameEn}
+        </span>
+        <span className="footer-amp">&</span>
+        <span className={`footer-name shimmer ${isMr ? "footer-name--mr" : ""}`}>
+          {isMr ? bride.nameMr.replace("चि. सौ. कां. ", "") : bride.nameEn}
+        </span>
+      </div>
 
-          <a
-            href={`tel:${person.phone}`}
-            className="text-rose-700 text-lg"
+      <div
+        className={`mx-auto mt-10 flex max-w-md flex-col gap-4 reveal-item reveal-d3 ${inView ? "visible" : ""}`}
+      >
+        {invitationData.contacts.map((person) => (
+          <div
+            key={person.phone}
+            className="rounded-xl border border-white/10 bg-white/5 px-6 py-4 text-center"
           >
-            {person.phone}
-          </a>
-        </div>
-      ))}
+            <h3 className="text-lg text-[var(--gold-light)]">{person.name}</h3>
+            <a
+              href={`tel:${person.phone}`}
+              className="mt-1 inline-block text-[var(--cream-2)] transition hover:text-white"
+            >
+              {person.phone}
+            </a>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }

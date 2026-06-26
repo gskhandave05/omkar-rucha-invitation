@@ -1,26 +1,32 @@
-import marathiCard from "../assets/marathi-card.jpg";
-import englishCard from "../assets/english-card.jpg";
+import { useRef } from "react";
+import { useInView } from "framer-motion";
+import marathiCard from "../assets/marathi-card.JPG";
+import englishCard from "../assets/english-card.JPG";
 
-export default function InvitationCard({
-  language,
-}) {
+export default function InvitationCard({ language }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+
   return (
-    <section className="py-20">
-
-      <div className="max-w-md mx-auto shadow-2xl rounded-xl overflow-hidden">
-
+    <section
+      ref={ref}
+      id="invitation-section"
+      className="snap-page"
+      style={{ background: "var(--cream-2)" }}
+    >
+      <div className={`event-invite-frame w-full reveal-item ${inView ? "visible" : ""}`}>
         <img
-          src={
+          key={language}
+          src={language === "mr" ? marathiCard : englishCard}
+          alt={
             language === "mr"
-              ? marathiCard
-              : englishCard
+              ? "Omkar & Rucha — Marathi invitation card"
+              : "Omkar & Rucha — English invitation card"
           }
-          alt="Invitation"
-          className="w-full"
+          className="event-invite-img"
+          draggable={false}
         />
-
       </div>
-
     </section>
   );
 }

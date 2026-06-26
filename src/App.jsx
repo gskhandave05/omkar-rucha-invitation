@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import LanguageTabs from "./components/LanguageTabs";
-import InvitationCover from "./components/InvitationCover";
+import EnvelopeCover from "./components/EnvelopeCover";
+import BackgroundMusic from "./components/BackgroundMusic";
+import PetalsCanvas from "./components/PetalsCanvas";
+import Hero from "./components/Hero";
+import ScratchDate from "./components/ScratchDate";
 import Countdown from "./components/Countdown";
 import InvitationCard from "./components/InvitationCard";
 import Venue from "./components/Venue";
@@ -8,31 +13,77 @@ import ContactSection from "./components/ContactSection";
 
 function App() {
   const [language, setLanguage] = useState("mr");
+  const [isOpened, setIsOpened] = useState(false);
+  const musicRef = useRef(null);
+
+  useEffect(() => {
+    document.documentElement.lang = language === "mr" ? "mr" : "en";
+  }, [language]);
+
+  useEffect(() => {
+    if (!isOpened) {
+      document.body.classList.add("no-scroll");
+      document.documentElement.classList.remove("snap-scroll");
+    } else {
+      document.body.classList.remove("no-scroll");
+      document.documentElement.classList.add("snap-scroll");
+    }
+    return () => {
+      document.body.classList.remove("no-scroll");
+      document.documentElement.classList.remove("snap-scroll");
+    };
+  }, [isOpened]);
+
+  const handleOpen = () => {
+    setIsOpened(true);
+  };
+
+  const handleUserInteract = () => {
+    musicRef.current?.start();
+  };
 
   return (
-    <div
-      className="
-        min-h-screen
-        bg-gradient-to-b
-        from-[#fffdf9]
-        via-[#fff7ef]
-        to-[#fffdf9]
-      "
-    >
-      <LanguageTabs
-        language={language}
-        setLanguage={setLanguage}
-      />
+    <div className="relative min-h-screen" style={{ background: "var(--cream)" }}>
+      <PetalsCanvas active={isOpened} />
 
-      <InvitationCover />
+      <AnimatePresence>
+        {!isOpened && (
+          <EnvelopeCover
+            language={language}
+            onOpen={handleOpen}
+            onUserInteract={handleUserInteract}
+          />
+        )}
+      </AnimatePresence>
 
-      <Countdown />
+      {!isOpened && (
+        <div className="intro-lang-bar">
+          <div onClick={(e) => e.stopPropagation()}>
+            <LanguageTabs language={language} setLanguage={setLanguage} />
+          </div>
+        </div>
+      )}
 
-      <InvitationCard language={language} />
+      <BackgroundMusic ref={musicRef} language={language} showControls={isOpened} />
 
-      <Venue />
+      <div className={`main-content ${isOpened ? "visible" : ""}`}>
+        {isOpened && (
+          <>
+            <div className="sticky-header">
+              <LanguageTabs language={language} setLanguage={setLanguage} />
+            </div>
 
-      <ContactSection />
+            <main className="invitation-main">
+              <Hero language={language} />
+              <ScratchDate language={language} />
+              <Countdown language={language} />
+              <InvitationCard language={language} />
+              <Venue language={language} />
+              <ContactSection language={language} />
+            </main>
+          </>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,30 +1,52 @@
+import { useRef } from "react";
+import { useInView } from "framer-motion";
 import { invitationData } from "../data/invitationData";
+import { t } from "../i18n/translations";
 
-export default function Venue() {
+export default function Venue({ language }) {
+  const { event } = invitationData;
+  const isMr = language === "mr";
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+
+  const venueName = isMr ? event.venueMr : event.venueEn;
+  const location = isMr ? event.locationMr : event.locationEn;
+
   return (
-    <section className="py-20 text-center">
+    <section
+      ref={ref}
+      id="venue-section"
+      className="snap-page text-center"
+      style={{ background: "var(--cream)" }}
+    >
+      <span className={`sec-label reveal-item ${inView ? "visible" : ""}`}>
+        {t(language, "venue")}
+      </span>
 
-      <h2 className="text-4xl text-amber-700 mb-8">
-        Venue
-      </h2>
+      <div className={`venue-card reveal-item reveal-d1 ${inView ? "visible" : ""}`}>
+        <div className="card-corner tl" />
+        <div className="card-corner tr" />
+        <div className="card-corner bl" />
+        <div className="card-corner br" />
 
-      <h3 className="text-2xl">
-        {invitationData.event.venue}
-      </h3>
+        <span className="venue-date">
+          {isMr ? event.dateMr : event.dateEn}
+        </span>
 
-      <p className="mb-6">
-        {invitationData.event.location}
-      </p>
+        <span className="venue-time">
+          {isMr ? event.timeMr : event.timeEn}
+        </span>
 
-      <a
-        href={invitationData.event.maps}
-        target="_blank"
-        rel="noreferrer"
-        className="bg-rose-600 text-white px-6 py-3 rounded-full"
-      >
-        Navigate To Venue
-      </a>
+        <h3 className={`venue-name ${isMr ? "venue-name--mr" : ""}`}>
+          {venueName}
+        </h3>
 
+        <p className="venue-location">{location}</p>
+
+        <a href={event.maps} target="_blank" rel="noreferrer" className="venue-btn">
+          {t(language, "navigateToVenue")}
+        </a>
+      </div>
     </section>
   );
 }

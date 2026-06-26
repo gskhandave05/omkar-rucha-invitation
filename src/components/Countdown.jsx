@@ -1,7 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useInView } from "framer-motion";
+import { t } from "../i18n/translations";
+import { invitationData } from "../data/invitationData";
 
-function Countdown() {
+const LABEL_KEYS = ["days", "hours", "minutes", "seconds"];
+
+export default function Countdown({ language }) {
   const eventDate = new Date("2026-07-04T11:00:00");
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const isMr = language === "mr";
 
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -11,44 +19,48 @@ function Countdown() {
   });
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      const difference = eventDate - new Date();
-
+    const update = () => {
+      const difference = Math.max(0, eventDate - new Date());
       setTimeLeft({
         days: Math.floor(difference / (1000 * 60 * 60 * 24)),
         hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
         minutes: Math.floor((difference / (1000 * 60)) % 60),
         seconds: Math.floor((difference / 1000) % 60),
       });
-    }, 1000);
-
+    };
+    update();
+    const timer = setInterval(update, 1000);
     return () => clearInterval(timer);
   }, []);
 
+  const values = [timeLeft.days, timeLeft.hours, timeLeft.minutes, timeLeft.seconds];
+
   return (
-    <section className="py-16">
-      <h2 className="text-3xl text-center mb-10">
-        Countdown
-      </h2>
+    <section
+      ref={ref}
+      className="snap-page"
+      style={{ background: "var(--cream)" }}
+    >
+      <div className={`cd-card reveal-item ${inView ? "visible" : ""}`}>
+        <p className="mb-2 text-lg italic text-[var(--text-mid)]">
+          {t(language, "countdownQuote")}
+        </p>
+        <span className="font-display mb-1 block text-3xl text-[var(--sage-dark)]">
+          {isMr ? invitationData.event.titleMr : invitationData.event.titleEn}
+        </span>
+        <span className="font-sans mb-8 mt-4 block text-sm uppercase tracking-[0.25em] text-[var(--sage-deep)]">
+          {isMr ? invitationData.event.dateMr : invitationData.event.dateEn}
+        </span>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-        {Object.entries(timeLeft).map(([key, value]) => (
-          <div
-            key={key}
-            className="bg-white rounded-3xl shadow-xl p-8 text-center"
-          >
-            <div className="text-5xl text-amber-700 font-bold">
-              {value}
+        <div className="cd-grid">
+          {LABEL_KEYS.map((key, index) => (
+            <div key={key} className="flex flex-col items-center gap-2">
+              <div className="cd-num">{values[index]}</div>
+              <div className="cd-lbl">{t(language, key)}</div>
             </div>
-
-            <div className="uppercase tracking-widest mt-2">
-              {key}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );
 }
-
-export default Countdown;
