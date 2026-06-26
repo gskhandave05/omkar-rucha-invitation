@@ -1,26 +1,15 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import LanguageTabs from "./components/LanguageTabs";
 import EnvelopeCover from "./components/EnvelopeCover";
 import BackgroundMusic from "./components/BackgroundMusic";
-
-const Hero = lazy(() => import("./components/Hero"));
-const ScratchDate = lazy(() => import("./components/ScratchDate"));
-const Countdown = lazy(() => import("./components/Countdown"));
-const InvitationCard = lazy(() => import("./components/InvitationCard"));
-const Venue = lazy(() => import("./components/Venue"));
-const ContactSection = lazy(() => import("./components/ContactSection"));
-const PetalsCanvas = lazy(() => import("./components/PetalsCanvas"));
-
-function LoadingScreen() {
-  return (
-    <div className="snap-page" style={{ background: "var(--cream-2)" }}>
-      <div className="video-intro__loading" aria-label="Loading">
-        <span className="video-intro__spinner" />
-      </div>
-    </div>
-  );
-}
+import PetalsCanvas from "./components/PetalsCanvas";
+import Hero from "./components/Hero";
+import ScratchDate from "./components/ScratchDate";
+import Countdown from "./components/Countdown";
+import InvitationCard from "./components/InvitationCard";
+import Venue from "./components/Venue";
+import ContactSection from "./components/ContactSection";
 
 function App() {
   const [language, setLanguage] = useState("mr");
@@ -55,9 +44,7 @@ function App() {
 
   return (
     <div className="relative min-h-screen" style={{ background: "var(--cream)" }}>
-      <Suspense fallback={null}>
-        <PetalsCanvas active={isOpened} />
-      </Suspense>
+      <PetalsCanvas active={isOpened} />
 
       <AnimatePresence>
         {!isOpened && (
@@ -86,16 +73,14 @@ function App() {
               <LanguageTabs language={language} setLanguage={setLanguage} />
             </div>
 
-            <Suspense fallback={<LoadingScreen />}>
-              <main className="invitation-main">
-                <Hero language={language} />
-                <ScratchDate language={language} />
-                <Countdown language={language} />
-                <InvitationCard language={language} />
-                <Venue language={language} />
-                <ContactSection language={language} />
-              </main>
-            </Suspense>
+            <main className="invitation-main">
+              <Hero language={language} />
+              <ScratchDate language={language} />
+              <Countdown language={language} />
+              <InvitationCard language={language} />
+              <Venue language={language} />
+              <ContactSection language={language} />
+            </main>
           </>
         )}
       </div>

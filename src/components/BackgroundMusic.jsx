@@ -1,25 +1,13 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { t } from "../i18n/translations";
 
-const MUSIC_SRC = `${import.meta.env.BASE_URL}music.mp3`;
-
 const BackgroundMusic = forwardRef(function BackgroundMusic({ language, showControls }, ref) {
   const audioRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [musicLoaded, setMusicLoaded] = useState(false);
-
-  const ensureAudio = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio || musicLoaded) return audio;
-    audio.src = MUSIC_SRC;
-    audio.load();
-    setMusicLoaded(true);
-    return audio;
-  }, [musicLoaded]);
 
   const playMusic = useCallback(async () => {
-    const audio = ensureAudio();
+    const audio = audioRef.current;
     if (!audio || isMuted) return false;
 
     try {
@@ -30,7 +18,7 @@ const BackgroundMusic = forwardRef(function BackgroundMusic({ language, showCont
       setIsPlaying(false);
       return false;
     }
-  }, [ensureAudio, isMuted]);
+  }, [isMuted]);
 
   useImperativeHandle(ref, () => ({
     start: playMusic,
@@ -43,7 +31,7 @@ const BackgroundMusic = forwardRef(function BackgroundMusic({ language, showCont
   }, [showControls, isMuted, playMusic]);
 
   const toggleMute = async () => {
-    const audio = ensureAudio();
+    const audio = audioRef.current;
     if (!audio) return;
 
     if (isMuted) {
@@ -66,7 +54,7 @@ const BackgroundMusic = forwardRef(function BackgroundMusic({ language, showCont
 
   return (
     <>
-      <audio ref={audioRef} loop preload="none" />
+      <audio ref={audioRef} src={`${import.meta.env.BASE_URL}music.mp3`} loop preload="auto" />
 
       {showControls && (
         <button
